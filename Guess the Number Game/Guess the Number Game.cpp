@@ -4,16 +4,19 @@
 
 using namespace std;
 
-int main()
+void playGame()
 {
-    srand(time(0));  // Seed the random number generator
-    int secretNumber = rand() % 100 + 1;  // Generate a random number between 1 and 100
-    int guess;
-    int attempts = 0;
-    int maxAttempts = 7;  // Limit the number of attempts
+    srand(time(0));  // Seed random number generator
+    int secretNumber = rand() % 100 + 1;  // Generate a number between 1 and 100
+    int guess, attempts = 0, maxAttempts;
+    char difficulty;
 
-    cout << "🎮 Welcome to Guess the Number! 🎮" << endl;
-    cout << "I have chosen a number between 1 and 100. Try to guess it!" << endl;
+    // Difficulty selection
+    cout << "Choose difficulty: (E)asy (10 attempts) or (H)ard (5 attempts): ";
+    cin >> difficulty;
+    maxAttempts = (difficulty == 'H' || difficulty == 'h') ? 5 : 10;
+
+    cout << "\n I have chosen a number between 1 and 100. Try to guess it!" << endl;
     cout << "You have " << maxAttempts << " attempts. Good luck!\n" << endl;
 
     do {
@@ -21,31 +24,62 @@ int main()
         cin >> guess;
         attempts++;
 
-        if (guess > secretNumber) {
-			cout << "📉 Too high! Try again." << endl;  // Check if the guess is higher than the secret number3
+        if (guess == secretNumber) {
+            cout << " Congratulations! You guessed the number in " << attempts << " attempts! 🎉" << endl;
+
+            // Player rating
+            if (attempts <= 3) cout << " Rating: Excellent! You're a pro!" << endl;
+            else if (attempts <= 6) cout << " Rating: Good job!" << endl;
+            else cout <<  "Rating: You did well! Keep practicing!" << endl;
+
+            return;
         }
-        else if (guess < secretNumber) {
-			cout << "📈 Too low! Try again." << endl; // Check if the guess is lower than the secret number
+        else if (abs(guess - secretNumber) <= 5) {
+            cout << "You are very close! Keep going!" << endl;
         }
-        else if (abs(guess - secretNumber) <= 5) {  
-            cout << "🔥 You are very close! Keep going!" << endl; // Check if the guess is within 5 of the secret number
+        else if (guess > secretNumber) {
+            if (guess > 100) {
+				cout << "Invalid input! Please enter a number between 1 and 100." << endl;
+				continue;
+            }
+            else {
+                cout << "Too high! Try again." << endl;
+            }
         }
         else {
-            cout << "🎉 Congratulations! You guessed the number in " << attempts << " attempts! 🎉" << endl;
-            return 0;  // Exit the program when guessed correctly
+            if (guess < 0) {
+				cout << "Invalid input! Please enter a number between 1 and 100." << endl;
+				continue;
+            }
+            else {
+                cout << "Too low! Try again." << endl;
+            }
         }
 
         cout << "Attempts left: " << (maxAttempts - attempts) << endl;
 
-    } while (guess != secretNumber && attempts < maxAttempts);  // Stop after maxAttempts
+    } while (attempts < maxAttempts);
 
-    // If the player fails to guess within the max attempts
-    cout << "\n😢 Sorry, you've used all " << maxAttempts << " attempts!" << endl;
+    // Losing message
+    cout << "\n Sorry, you've used all " << maxAttempts << " attempts!" << endl;
     cout << "The secret number was: " << secretNumber << endl;
-    cout << "Better luck next time! 🎲" << endl;
-
-
-	return 0;
+    cout << "Better luck next time! " << endl;
 }
+
+int main() {
+    char playAgain;
+
+    do {
+        playGame();  // Run the game
+
+        cout << "\nDo you want to play again? (Y/N): ";
+        cin >> playAgain;
+
+    } while (playAgain == 'Y' || playAgain == 'y');
+
+    cout << " Thanks for playing! See you next time!" << endl;
+    return 0;
+}
+
 
 
