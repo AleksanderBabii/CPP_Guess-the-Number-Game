@@ -1,102 +1,111 @@
 ﻿#include <iostream>
-#include <cstdlib>
-#include <ctime>
-#include <algorithm>
-#include <climits>
+#include <cstdlib>  // For rand() and srand()
+#include <ctime>    // For time()
+#include <cmath>    // For abs()
+#include <limits>   // For clearing input buffer
 
 using namespace std;
 
-int bestScore = INT_MAX; // Initialize best score to maximum integer value
+// Function to display the welcome message
+void displayWelcomeMessage() {
+    cout << "\n Welcome to the Guess the Number Game! " << endl;
+    cout << "Choose a difficulty level:" << endl;
+    cout << "1. Easy (1-50)" << endl;
+    cout << "2. Medium (1-100)" << endl;
+    cout << "3. Hard (1-500)" << endl;
+}
 
-//Function to play single round of the game
-void playGame() {
-    srand(time(0));  // Seed random number generator
-    int secretNumber = rand() % 100 + 1;  // Generate a number between 1 and 100
-    int guess, attempts = 0, maxAttempts;
-    char difficulty;
-    time_t startTime, endTime;
+// Function to get difficulty level from the user
+int getDifficultyLevel() {
+    int choice, maxNumber;
+    while (true) {
+        cout << "Select (1, 2, or 3): ";
+        cin >> choice;
 
-    // Difficulty selection
-    cout << "Choose difficulty: (E)asy (10 attempts) or (H)ard (5 attempts): ";
-    cin >> difficulty;
-    maxAttempts = (difficulty == 'H' || difficulty == 'h') ? 5 : 10;
-
-    cout << "\n I have chosen a number between 1 and 100. Try to guess it!" << endl;
-    cout << "You have " << maxAttempts << " attempts. Good luck!\n" << endl;
-
-    time(&startTime);  // Start the timer
-    do {
-        cout << "Enter your guess: ";
-        cin >> guess;
-
-        if (cin.fail()) {
-            cin.clear();
-            cin.ignore();
-            cout << "Invalid input! Please enter a number between 1 and 100." << endl;
-            continue;
+        if (choice == 1) {
+            maxNumber = 50;
+            break;
         }
-
-        attempts++;
-
-        if (guess == secretNumber) {
-            time(&endTime);  // Stop the timer
-            double timeTaken = difftime(endTime, startTime);  // Calculate time taken
-
-            cout << "Congratulations! You guessed the number in " << attempts << " attempts! 🎉" << endl;
-            cout << "Time taken: " << timeTaken << " seconds" << endl;
-
-            // Update best score
-            if (attempts < bestScore) {
-                bestScore = attempts;
-                cout << "New best score! 🏆" << endl;
-            } else {
-                cout << "Best score: " << bestScore << " attempts" << endl;
-            }
-
-            // Player rating
-            if (attempts <= 3) cout << "Rating: Excellent! You're a pro!" << endl;
-            else if (attempts <= 6) cout << "Rating: Good job!" << endl;
-            else cout << "Rating: You did well! Keep practicing!" << endl;
-            return;
-        } else if (abs(guess - secretNumber) <= 5) {
-            cout << "You are very close! Keep going!" << endl;
-        } else if (guess > secretNumber) {
-            if (guess > 100) {
-                cout << "Invalid input! Please enter a number between 1 and 100." << endl;
-                continue;
-            } else {
-                cout << "Too high! Try again." << endl;
-            }
-        } else {
-            if (guess < 0) {
-                cout << "Invalid input! Please enter a number between 1 and 100." << endl;
-                continue;
-            } else {
-                cout << "Too low! Try again." << endl;
-            }
+        else if (choice == 2) {
+            maxNumber = 100;
+            break;
         }
+        else if (choice == 3) {
+            maxNumber = 500;
+            break;
+        }
+        else {
+            cout << " Invalid choice. Please enter 1, 2, or 3." << endl;
+        }
+    }
+    return maxNumber;
+}
 
-        cout << "Attempts left: " << (maxAttempts - attempts) << endl;
+// Function to get user's guess
+int getUserGuess() {
+    int guess;
+    cout << "\nEnter your guess: ";
+    cin >> guess;
+    return guess;
+}
 
-    } while (attempts < maxAttempts);
-
-    // Losing message
-    cout << "\nSorry, you've used all " << maxAttempts << " attempts!" << endl;
-    cout << "The secret number was: " << secretNumber << endl;
-    cout << "Better luck next time!" << endl;
+// Function to check the guess and give hints
+bool checkGuess(int guess, int secretNumber) {
+    if (guess == secretNumber) {
+        cout << " Congratulations! You guessed the correct number!" << endl;
+        return true;
+    }
+    else if (abs(guess - secretNumber) <= 5) {
+        cout << " Very Close! Try again." << endl;
+    }
+    else if (guess > secretNumber) {
+        cout << " Too High! Try again." << endl;
+    }
+    else {
+        cout << " Too Low! Try again." << endl;
+    }
+    return false;
 }
 
 int main() {
-    char playAgain;
+    srand(time(0));  // Initialize random seed
+    int bestScore = INT_MAX; // Track best (lowest) attempts
 
-    do {
-        playGame();  // Run the game
+    while (true) { // Loop to allow replay
+        displayWelcomeMessage(); // Show game instructions
+        int maxNumber = getDifficultyLevel(); // Get difficulty level
+        int secretNumber = rand() % maxNumber + 1; // Generate number
+        int userGuess, attempts = 0;
 
-        cout << "\nDo you want to play another round? (Y/N): ";
+        cout << "\nI've picked a number between 1 and " << maxNumber << ". Try to guess it!" << endl;
+
+        while (true) {
+            userGuess = getUserGuess();
+            attempts++;
+
+            if (checkGuess(userGuess, secretNumber)) {
+                cout << " You guessed it in " << attempts << " attempts!" << endl;
+
+                // Update best score if necessary
+                if (attempts < bestScore) {
+                    bestScore = attempts;
+                    cout << " New Best Score: " << bestScore << " attempts!" << endl;
+                }
+                else {
+                    cout << "Your best score remains: " << bestScore << " attempts!" << endl;
+                }
+                break; // Exit guessing loop
+            }
+        }
+
+        // Ask if the user wants to play again
+        char playAgain;
+        cout << "\n Do you want to play again? (Y/N): ";
         cin >> playAgain;
-
-    } while (playAgain == 'Y' || playAgain == 'y');
-
-    cout << "Thanks for playing! See you next time!" << endl;
+        if (playAgain == 'N' || playAgain == 'n') {
+            cout << " Thanks for playing! See you next time! 🎮" << endl;
+            break; // Exit game loop
+        }
+    }
     return 0;
 }
